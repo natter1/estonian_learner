@@ -2,8 +2,8 @@
 
 """
 
-class Word:
-    pass
+# class Word:
+#     pass
 
 
 class Conjugations:
