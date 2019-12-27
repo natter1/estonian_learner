@@ -1,7 +1,7 @@
 import sqlalchemy as sa
 import sqlalchemy.orm as orm
 
-from data.modelbase import SqlAlchemyBase
+from data_sqlalchemy.modelbase import SqlAlchemyBase
 
 factory = None
 
@@ -21,6 +21,6 @@ def global_init(db_file: str):
     factory = orm.sessionmaker(bind=engine)
 
     # noinspection PyUnresolvedReferences
-    import data.__all_models
+    import data_sqlalchemy.__all_models
 
     SqlAlchemyBase.metadata.create_all(engine)

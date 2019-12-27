@@ -1,6 +1,6 @@
 import datetime
 
-from data.modelbase import SqlAlchemyBase
+from data_sqlalchemy.modelbase import SqlAlchemyBase
 import sqlalchemy as sa
 
 class Word(SqlAlchemyBase):

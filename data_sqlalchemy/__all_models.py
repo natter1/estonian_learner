@@ -1,4 +1,4 @@
 # noinspection PyUnresolvedReferences
-from data.word import Word
+from data_sqlalchemy.word import Word
 
 # ... and all other models

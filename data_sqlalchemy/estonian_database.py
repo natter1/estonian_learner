@@ -1,5 +1,5 @@
 import sqlite3
-import data.db_session as db_session
+import data_sqlalchemy.db_session as db_session
 
 
 def main():
