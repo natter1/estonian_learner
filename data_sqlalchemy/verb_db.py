@@ -3,6 +3,33 @@ import datetime
 from data_sqlalchemy.modelbase import SqlAlchemyBase
 import sqlalchemy as sa
 
+
+class ConjugationDB(SqlAlchemyBase):
+    __tablename__ = "conjugations"
+    id = sa.Column(sa.Integer, primary_key=True, autoincrement=True)
+    created_date = sa.Column(sa.DateTime, default=datetime.datetime.now, index=True)
+    hint = sa.String()  # not supported by sqlite: nullable=True
+    tense = sa.String()  # todo: check ENUM
+
+
+
+
+class VerbDB(SqlAlchemyBase):
+    __tablename__ = "verbs"
+    id = sa.Column(sa.Integer, primary_key=True, autoincrement=True)
+    created_date = sa.Column(sa.DateTime, default=datetime.datetime.now, index=True)
+    hint = sa.String()  # not supported by sqlite: nullable=True
+
+    person = {}
+
+    negative = ("", "")
+    passive = ("", "")
+    passive_negative = ("", "")
+
+    def __repr__(self):  # for more useful debug messages
+        return f"<Package {self.id}>"
+
+
 #
 # class Conjugations:
 #     def __init__(self):
