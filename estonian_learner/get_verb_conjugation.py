@@ -8,6 +8,9 @@ https://en.wiktionary.org/wiki/olema#Estonian
 """
 from bs4 import BeautifulSoup
 import requests
+import json
+
+from data_sqlalchemy.verb_db import VerbDB
 from estonian_learner.verb import Verb
 from estonian_learner.verb import Conjugations
 
@@ -27,60 +30,72 @@ list_of_verbs = [
 
 def main():
     my_verbs = []
+
     source_vocabs = "..\\resources\\vocabs_source.txt"  # file containing a source for the vocabs and their forms
     with open(source_vocabs, 'r') as myfile:
         source = myfile.read()
 
-    for verb in list_of_verbs:
+    for verb in list_of_verbs[0:1]:  # todo: [0:1] only for testing!
         url = source + verb
-        url = "https://en.wiktionary.org/wiki/olema#Estonian"
+        # url = "https://en.wiktionary.org/wiki/olema#Estonian"
+        # url = "https://www.eki.ee/litsents/idkaart/dl.cgi?D=psv%2Fhaaldused"
         req = requests.get(url)
         soup = BeautifulSoup(req.text, "html.parser")
-        print(soup)
-        my_verb: Verb = Verb()
+        # print(soup)
 
-        read_infinitives(soup, my_verb)
-        read_participles(soup, my_verb)
-
-        my_verb.present = read_conjugations(soup, "present{}")
-        my_verb.conditional_mood = read_conjugations(soup, "conditional{}")
-        my_verb.imperative_mood = read_conjugations(soup, "imperative{}")
-        my_verb.imperative_negative_mood = read_conjugations(soup, "imperative{}_neg")
-
-        my_verb.perfect = read_conjugations(soup, "perfect{}")
-        my_verb.past = read_conjugations(soup, "past{}")
-        my_verb.plusperfect = read_conjugations(soup, "pluperfect{}")
-        my_verb.conditional_perfect_mood = read_conjugations(soup, "conditional_perfect{}")
-
-        my_verb.quotative = read_conjugations(soup, "quotative{}")
-        my_verb.quotative.person[3] = read_form_and_translation(soup, "quotative")
-        my_verb.quotative_perfect = read_conjugations(soup, "quotative_perfect{}")
-        my_verb.quotative_perfect.person[3] = read_form_and_translation(soup, "quotative_perfect")
-
-        my_verb.jussive = read_conjugations(soup, "jussive{}")
-        my_verb.jussive.person[3] = read_form_and_translation(soup, "jussive")
-        my_verb.jussive_perfect = read_conjugations(soup, "jussive_perfect{}")
-        my_verb.jussive_perfect.person[3] = read_form_and_translation(soup, "jussive_perfect")
-
-        my_verb.other["des_form"] = read_form_and_translation(soup, "des_form")
-        my_verb.other["ma_inessive"] = read_form_and_translation(soup, "ma_inessive")
-        my_verb.other["ma_elative"] = read_form_and_translation(soup, "ma_elative")
-        my_verb.other["ma_translative"] = read_form_and_translation(soup, "ma_translative")
-        my_verb.other["ma_abessive"] = read_form_and_translation(soup, "ma_abessive")
-        my_verb.other["participle_present_active"] = read_form_and_translation(soup, "participle_present_active")
-        my_verb.other["participle_present_passive"] = read_form_and_translation(soup, "participle_present_passive")
-
-
-        soup_usage = soup.find("div", {"id": "usage-info"})
-        if soup_usage:
-            my_verb.usage_info = soup_usage.text
-
+        # my_verb = read_to_verb(soup)
+        my_verb = read_to_verbdb(soup)
         my_verbs.append(my_verb)
 
     for verb in my_verbs:
         print(verb.get_summary())
+        # print(verb.past.to_json())
+        # verb.past.from_json(verb.past.to_json())
     # print(my_verbs)
 
+
+def read_to_verbdb(soup):
+    my_verb: Verb = VerbDB()
+
+    read_infinitivesdb(soup, my_verb)
+    read_participlesdb(soup, my_verb)
+
+    my_verb.present = read_conjugations(soup, "present{}").to_json()
+    my_verb.conditional_mood = read_conjugations(soup, "conditional{}").to_json()
+    my_verb.imperative_mood = read_conjugations(soup, "imperative{}").to_json()
+    my_verb.imperative_negative_mood = read_conjugations(soup, "imperative{}_neg").to_json()
+
+    my_verb.perfect = read_conjugations(soup, "perfect{}").to_json()
+    my_verb.past = read_conjugations(soup, "past{}").to_json()
+    my_verb.plusperfect = read_conjugations(soup, "pluperfect{}").to_json()
+    my_verb.conditional_perfect_mood = read_conjugations(soup, "conditional_perfect{}").to_json()
+
+    my_verb.quotative = read_conjugations(soup, "quotative{}").to_json()
+    my_verb.quotative["person"]["3"] = read_form_and_translation(soup, "quotative")
+    my_verb.quotative_perfect = read_conjugations(soup, "quotative_perfect{}").to_json()
+    my_verb.quotative_perfect["person"]["3"] = read_form_and_translation(soup, "quotative_perfect")
+
+    my_verb.jussive = read_conjugations(soup, "jussive{}").to_json()
+    my_verb.jussive["person"]["3"] = read_form_and_translation(soup, "jussive")
+
+    my_verb.jussive_perfect = read_conjugations(soup, "jussive_perfect{}").to_json()
+    my_verb.jussive_perfect["person"]["3"] = read_form_and_translation(soup, "jussive_perfect")
+
+    other = {"des_form": read_form_and_translation(soup, "des_form"),
+             "ma_inessive": read_form_and_translation(soup, "ma_inessive"),
+             "ma_elative": read_form_and_translation(soup, "ma_elative"),
+             "ma_translative": read_form_and_translation(soup, "ma_translative"),
+             "ma_abessive": read_form_and_translation(soup, "ma_abessive"),
+             "participle_present_active": read_form_and_translation(soup, "participle_present_active"),
+             "participle_present_passive": read_form_and_translation(soup, "participle_present_passive")}
+
+    my_verb.other = json.dumps(other, indent=2, ensure_ascii=False)
+
+    soup_usage = soup.find("div", {"id": "usage-info"})
+    if soup_usage:
+        my_verb.usage_info = soup_usage.text
+
+    return my_verb
 
 
 def read_form_and_translation(soup, id):
@@ -90,7 +105,64 @@ def read_form_and_translation(soup, id):
     if form_soup:
         form = form_soup.find("div", {"class": "meta-form"}).text
         translation = form_soup.find("div", {"class": "meta-translation"}).text
-    return form, translation
+    return [form, translation]
+
+
+def read_infinitivesdb(soup, verb):
+    verb.infinitive_ma = read_form_and_translation(soup, "ma_infinitive")[0]
+    verb.infinitive_da = read_form_and_translation(soup, "da_infinitive")[0]
+
+    verb.infinitive_ma_english = read_form_and_translation(soup, "ma_infinitive")[1]
+    verb.infinitive_da_english = read_form_and_translation(soup, "da_infinitive")[1]
+
+
+def read_participlesdb(soup, verb):
+    verb.past_active_participle = read_form_and_translation(soup, "participle_past_active")[0]
+    verb.past_passive_participle = read_form_and_translation(soup, "participle_past_passive")[0]
+
+    verb.past_active_participle_english = read_form_and_translation(soup, "participle_past_active")[1]
+    verb.past_passive_participle_english = read_form_and_translation(soup, "participle_past_passive")[1]
+
+
+def read_to_verb(soup):
+    my_verb: Verb = Verb()
+
+    read_infinitives(soup, my_verb)
+    read_participles(soup, my_verb)
+
+    my_verb.present = read_conjugations(soup, "present{}")
+    my_verb.conditional_mood = read_conjugations(soup, "conditional{}")
+    my_verb.imperative_mood = read_conjugations(soup, "imperative{}")
+    my_verb.imperative_negative_mood = read_conjugations(soup, "imperative{}_neg")
+
+    my_verb.perfect = read_conjugations(soup, "perfect{}")
+    my_verb.past = read_conjugations(soup, "past{}")
+    my_verb.plusperfect = read_conjugations(soup, "pluperfect{}")
+    my_verb.conditional_perfect_mood = read_conjugations(soup, "conditional_perfect{}")
+
+    my_verb.quotative = read_conjugations(soup, "quotative{}")
+    my_verb.quotative.person[3] = read_form_and_translation(soup, "quotative")
+    my_verb.quotative_perfect = read_conjugations(soup, "quotative_perfect{}")
+    my_verb.quotative_perfect.person[3] = read_form_and_translation(soup, "quotative_perfect")
+
+    my_verb.jussive = read_conjugations(soup, "jussive{}")
+    my_verb.jussive.person[3] = read_form_and_translation(soup, "jussive")
+    my_verb.jussive_perfect = read_conjugations(soup, "jussive_perfect{}")
+    my_verb.jussive_perfect.person[3] = read_form_and_translation(soup, "jussive_perfect")
+
+    my_verb.other["des_form"] = read_form_and_translation(soup, "des_form")
+    my_verb.other["ma_inessive"] = read_form_and_translation(soup, "ma_inessive")
+    my_verb.other["ma_elative"] = read_form_and_translation(soup, "ma_elative")
+    my_verb.other["ma_translative"] = read_form_and_translation(soup, "ma_translative")
+    my_verb.other["ma_abessive"] = read_form_and_translation(soup, "ma_abessive")
+    my_verb.other["participle_present_active"] = read_form_and_translation(soup, "participle_present_active")
+    my_verb.other["participle_present_passive"] = read_form_and_translation(soup, "participle_present_passive")
+
+    soup_usage = soup.find("div", {"id": "usage-info"})
+    if soup_usage:
+        my_verb.usage_info = soup_usage.text
+
+    return my_verb
 
 
 def read_infinitives(soup, verb):

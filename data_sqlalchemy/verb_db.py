@@ -4,146 +4,167 @@ from data_sqlalchemy.modelbase import SqlAlchemyBase
 import sqlalchemy as sa
 
 
+# not used; Conjugation is stored as JSON in VerbDB
+from estonian_learner.verb import Conjugations
+
+
 class ConjugationDB(SqlAlchemyBase):
     __tablename__ = "conjugations"
     id = sa.Column(sa.Integer, primary_key=True, autoincrement=True)
     created_date = sa.Column(sa.DateTime, default=datetime.datetime.now, index=True)
-    hint = sa.String()  # not supported by sqlite: nullable=True
-    tense = sa.String()  # todo: check ENUM
-
-
+    hint = sa.Column(sa.String)  # not supported by sqlite: nullable=True
+    tense = sa.Column(sa.String)  # todo: check ENUM
+    data_json = sa.Column(sa.JSON)
 
 
 class VerbDB(SqlAlchemyBase):
     __tablename__ = "verbs"
-    id = sa.Column(sa.Integer, primary_key=True, autoincrement=True)
+    # id = sa.Column(sa.Integer, primary_key=True, autoincrement=True)
     created_date = sa.Column(sa.DateTime, default=datetime.datetime.now, index=True)
-    hint = sa.String()  # not supported by sqlite: nullable=True
+    hint = sa.Column(sa.String)  # not supported by sqlite: nullable=True
 
-    person = {}
+    infinitive_ma = sa.Column(sa.String, primary_key=True)  # , index=True)
+    infinitive_da = sa.Column(sa.String)
+    past_active_participle = sa.Column(sa.String)
+    past_passive_participle = sa.Column(sa.String)
 
-    negative = ("", "")
-    passive = ("", "")
-    passive_negative = ("", "")
+    infinitive_ma_english = sa.Column(sa.String)
+    infinitive_da_english = sa.Column(sa.String)
+    past_active_participle_english = sa.Column(sa.String)
+    past_passive_participle_english = sa.Column(sa.String)
+
+    # Conjugations
+    present = sa.Column(sa.JSON)
+    conditional_mood = sa.Column(sa.JSON)
+    imperative_mood = sa.Column(sa.JSON)
+    imperative_negative_mood = sa.Column(sa.JSON)
+
+    perfect = sa.Column(sa.JSON)
+    past = sa.Column(sa.JSON)
+    plusperfect = sa.Column(sa.JSON)
+    conditional_perfect_mood = sa.Column(sa.JSON)
+
+    quotative = sa.Column(sa.JSON)
+    quotative_perfect = sa.Column(sa.JSON)
+    jussive = sa.Column(sa.JSON)
+    jussive_perfect = sa.Column(sa.JSON)
+
+    # dict
+    other = sa.Column(sa.JSON)
+
+    usage_info = sa.Column(sa.String)
+
+    audio = sa.Column(sa.BLOB)
+
+    def __init__(self):
+        # self.infinitive_ma = ("", "")
+        # self.infinitive_da = ("", "")
+        # self.past_active_participle = ("", "")
+        # self.past_passive_participle = ("", "")
+        #
+        # self.present = Conjugations()
+        # self.conditional_mood = Conjugations()
+        # self.imperative_mood = Conjugations()
+        # self.imperative_negative_mood = Conjugations()
+        #
+        # self.perfect = Conjugations()
+        # self.past = Conjugations()
+        # self.plusperfect = Conjugations()
+        # self.conditional_perfect_mood = Conjugations()
+        #
+        # self.quotative = Conjugations()
+        # self.quotative_perfect = Conjugations()
+        # self.jussive = Conjugations()
+        # self.jussive_perfect = Conjugations()
+        #
+        # self.other = {}
+
+        self.usage_info = ""
+
+        self.audio = None
 
     def __repr__(self):  # for more useful debug messages
-        return f"<Package {self.id}>"
+        return f"<VerbDB {self.id}>"
 
+    def get_summary(self):
+        result = "\n---------------------------------------------------------"
 
-#
-# class Conjugations:
-#     def __init__(self):
-#         self.person = {}
-#
-#         self.negative = ("", "")
-#         self.passive = ("", "")
-#         self.passive_negative = ("", "")
-#
-#     def summary(self):
-#         result = ""
-#         sep = "  "
-#         for i in range(1, 7):
-#             result += sep.join([f"{i}P", self.person[i][0], self.person[i][1]]) + "\n"
-#         result += sep.join(["negative", self.negative[0], self.negative[1]]) + "\n"
-#         result += sep.join(["passive", self.passive[0], self.passive[1]]) + "\n"
-#         result += sep.join(["passive negative", self.passive_negative[0], self.passive_negative[1]]) + "\n"
-#         return result
-#
-#     def add_person(self, original, translation, index):
-#         self.person[index] = original
-#         self.person_translation[index] = translation
-#
-#
-# class Verb:
-#     id = sa.Column(sa.Integer, primary_key=True, autoincrement=True)
-#     # id = sa.Column(sa.String, primary_key=True)
-#     created_date = sa.Column(sa.DateTime, default=datetime.datetime.now, index=True)
-#     hint = sa.String()  # not supported by sqlite: nullable=True
-#
-#     infinitive_ma = ("", "")
-#     infinitive_da = ("", "")
-#     past_active_participle = ("", "")
-#     past_passive_participle = ("", "")
-#
-#     def __init__(self):
-#         self.infinitive_ma = ("", "")
-#         self.infinitive_da = ("", "")
-#         self.past_active_participle = ("", "")
-#         self.past_passive_participle = ("", "")
-#
-#         self.present = Conjugations()
-#         self.conditional_mood = Conjugations()
-#         self.imperative_mood = Conjugations()
-#         self.imperative_negative_mood = Conjugations()
-#
-#         self.perfect = Conjugations()
-#         self.past = Conjugations()
-#         self.plusperfect = Conjugations()
-#         self.conditional_perfect_mood = Conjugations()
-#
-#         self.quotative = Conjugations()
-#         self.quotative_perfect = Conjugations()
-#         self.jussive = Conjugations()
-#         self.jussive_perfect = Conjugations()
-#
-#         self.other = {}
-#
-#         self.usage_info = ""
-#
-#     def get_summary(self):
-#         result = "\n---------------------------------------------------------"
-#
-#         result += "\nUsage info:\n"
-#         result += self.usage_info + "\n"
-#
-#         result += "\nInfinitive (-ma  -da  translation)\n"
-#         result += self.infinitive_ma[0] + "  " + self.infinitive_da[0] + "  " + self.infinitive_ma[1] + "\n"
-#
-#         result += "\nPast active participle\n"
-#         result += self.past_active_participle[0] + "  " + self.past_active_participle[1] + "\n"
-#
-#         result += "\nPast passive participle\n"
-#         result += self.past_passive_participle[0] + "  " + self.past_passive_participle[1] + "\n"
-#
-#         result += "\nPresent tense\n"
-#         result += self.present.summary()
-#
-#         result += "\nConditional mood\n"
-#         result += self.conditional_mood.summary()
-#
-#         result += "\nImperative mood\n"
-#         result += self.imperative_mood.summary()
-#
-#         result += "\nImperative negative mood\n"
-#         result += self.imperative_negative_mood.summary()
-#
-#         result += "\nPerfect tense\n"
-#         result += self.perfect.summary()
-#
-#         result += "\nPast tense\n"
-#         result += self.past.summary()
-#
-#         result += "\nPlusperfect tense\n"
-#         result += self.plusperfect.summary()
-#
-#         result += "\nConditional perfect mood\n"
-#         result += self.conditional_perfect_mood.summary()
-#
-#         result += "\nQuotative tense\n"
-#         result += self.quotative.summary()
-#
-#         result += "\nQuotative perfect tense\n"
-#         result += self.quotative_perfect.summary()
-#
-#         result += "\nJussive tense\n"
-#         result += self.jussive.summary()
-#
-#         result += "\nJussive perfect tense\n"
-#         result += self.jussive_perfect.summary()
-#
-#         result += "\nOther\n"
-#         for key in self.other:
-#             result += key + "  " + self.other[key][0] + "  " + self.other[key][1] + "\n"
-#
-#         result += "---------------------------------------------------------\n"
-#         return result
+        result += "\nUsage info:\n"
+        result += self.usage_info + "\n"
+
+        result += "\nInfinitive (-ma  -da  translation)\n"
+        result += self.infinitive_ma + "  " + self.infinitive_da + "  " + self.infinitive_ma_english + "\n"
+
+        result += "\nPast active participle\n"
+        result += self.past_active_participle + "  " + self.past_active_participle_english + "\n"
+
+        result += "\nPast passive participle\n"
+        result += self.past_passive_participle + "  " + self.past_passive_participle_english + "\n"
+
+        result += "\nPresent tense\n"
+        conjugations = Conjugations()
+        conjugations.from_json(self.present)
+        result += conjugations.summary
+
+        result += "\nConditional mood\n"
+        conjugations = Conjugations()
+        conjugations.from_json(self.conditional_mood)
+        result += conjugations.summary
+
+        result += "\nImperative mood\n"
+        conjugations = Conjugations()
+        conjugations.from_json(self.imperative_mood)
+        result += conjugations.summary
+
+        result += "\nImperative negative mood\n"
+        conjugations = Conjugations()
+        conjugations.from_json(self.imperative_negative_mood)
+        result += conjugations.summary
+
+        result += "\nPerfect tense\n"
+        conjugations = Conjugations()
+        conjugations.from_json(self.perfect)
+        result += conjugations.summary
+
+        result += "\nPast tense\n"
+        conjugations = Conjugations()
+        conjugations.from_json(self.past)
+        result += conjugations.summary
+
+        result += "\nPlusperfect tense\n"
+        conjugations = Conjugations()
+        conjugations.from_json(self.plusperfect)
+        result += conjugations.summary
+
+        result += "\nConditional perfect mood\n"
+        conjugations = Conjugations()
+        conjugations.from_json(self.conditional_perfect_mood)
+        result += conjugations.summary
+
+        result += "\nQuotative tense\n"
+        conjugations = Conjugations()
+        conjugations.from_json(self.quotative)
+        result += conjugations.summary
+
+        result += "\nQuotative perfect tense\n"
+        conjugations = Conjugations()
+        conjugations.from_json(self.quotative_perfect)
+        result += conjugations.summary
+
+        result += "\nJussive tense\n"
+        conjugations = Conjugations()
+        conjugations.from_json(self.jussive)
+        result += conjugations.summary
+
+        result += "\nJussive perfect tense\n"
+        conjugations = Conjugations()
+        conjugations.from_json(self.jussive_perfect)
+        result += conjugations.summary
+
+        #
+        # result += "\nOther\n"
+        # for key in self.other:
+        #     result += key + "  " + self.other[key][0] + "  " + self.other[key][1] + "\n"
+
+        result += "---------------------------------------------------------\n"
+        return result
