@@ -3,6 +3,7 @@ import datetime
 from data_sqlalchemy.modelbase import SqlAlchemyBase
 import sqlalchemy as sa
 
+
 class Word(SqlAlchemyBase):
     __tablename__ = "words"
     # id = sa.Column(sa.Integer, primary_key=True, autoincrement=True)

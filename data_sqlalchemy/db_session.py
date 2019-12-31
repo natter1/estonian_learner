@@ -5,6 +5,7 @@ from data_sqlalchemy.modelbase import SqlAlchemyBase
 
 factory = None
 
+
 def global_init(db_file: str):
     global factory
 

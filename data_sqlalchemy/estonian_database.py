@@ -1,11 +1,11 @@
-import sqlite3
 import data_sqlalchemy.db_session as db_session
 
 
 def main():
     create_estonian_database('example.sqlite')
 
-def create_estonian_database(filename):
+
+def create_estonian_database(filename: str):
     db_session.global_init(filename)
 
 

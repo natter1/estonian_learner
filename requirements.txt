@@ -1,3 +1,5 @@
+requests
+beautifulsoup4
 gtts
 pydub
 simpleaudio
