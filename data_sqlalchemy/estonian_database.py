@@ -1,12 +1,12 @@
-import data_sqlalchemy.db_session as db_session
+from data_sqlalchemy.db_session import DbSession
 
 
 def main():
-    create_estonian_database('example.sqlite')
+    create('example.sqlite')
 
 
-def create_estonian_database(filename: str):
-    db_session.global_init(filename)
+def create(filename: str):
+    DbSession.global_init(filename)
 
 
 if __name__ == "__main__":

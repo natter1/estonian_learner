@@ -1,6 +1,7 @@
 """
-
+@author: Nathanael Jöhrmann
 """
+
 import json
 import textwrap
 
