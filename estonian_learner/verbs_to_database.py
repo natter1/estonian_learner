@@ -14,7 +14,8 @@ import json
 import os
 
 import requests
-from bs4 import BeautifulSoup, SoupStrainer
+from bs4 import BeautifulSoup
+from bs4.element import SoupStrainer
 
 from data_sqlalchemy import estonian_database
 from data_sqlalchemy.db_session import DbSession
@@ -52,8 +53,15 @@ def get_verbs_from_database() -> list:
 
     return result
 
+
 def get_verb_from_database(ma_infinitive: str):
-    pass  # todo
+    estonian_database.create(db_file)
+
+    session = DbSession.factory()
+    result = session.query(VerbDB).get({"ma_infinitive": ma_infinitive})
+
+    return result
+
 
 def add_to_database(my_verbs):
 
@@ -71,7 +79,7 @@ def add_to_database(my_verbs):
 
 def main():
     my_verbs = []
-    for verb in list_of_verbs[5:]:  # todo: [0:1] only for testing!
+    for verb in list_of_verbs[:]:  # todo: [0:1] only for testing!
         my_verbs.append(get_verbdb(verb))
     for verb in my_verbs:
         print(verb.summary)

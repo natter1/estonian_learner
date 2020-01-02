@@ -8,9 +8,9 @@ class DbSession:
     factory = None
     engine = None
 
-    @staticmethod
-    def global_init(db_file: str):
-        if DbSession.factory:
+    @classmethod
+    def global_init(cls, db_file: str):
+        if cls.factory:
             return
 
         if not db_file or not db_file.strip():
@@ -19,8 +19,8 @@ class DbSession:
         connection_str = "sqlite:///" + db_file.strip()
         print(f"Connecting to DB with {connection_str}")
 
-        DbSession.engine = sa.create_engine(connection_str, echo=False)
-        DbSession.factory = orm.sessionmaker(bind=DbSession.engine)
+        cls.engine = sa.create_engine(connection_str, echo=False)
+        cls.factory = orm.sessionmaker(bind=cls.engine)
 
         # noinspection PyUnresolvedReferences
         import data_sqlalchemy.__all_models
