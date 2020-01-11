@@ -44,6 +44,16 @@ db_file = os.path.abspath(
     ))
 
 
+def main():
+    my_verbs = []
+    for verb in list_of_verbs[:]:  # todo: [0:1] only for testing!
+        my_verbs.append(get_verbdb(verb))
+    for verb in my_verbs:
+        print(verb.summary)
+
+    add_to_database(my_verbs)
+
+
 def get_verbs_from_database() -> list:
     estonian_database.create(db_file)
 
@@ -75,16 +85,6 @@ def add_to_database(my_verbs):
     # session.add_all(my_verbs)
 
     session.commit()
-
-
-def main():
-    my_verbs = []
-    for verb in list_of_verbs[:]:  # todo: [0:1] only for testing!
-        my_verbs.append(get_verbdb(verb))
-    for verb in my_verbs:
-        print(verb.summary)
-
-    add_to_database(my_verbs)
 
 
 def get_verbdb(verb: str):
