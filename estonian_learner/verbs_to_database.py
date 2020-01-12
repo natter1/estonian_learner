@@ -17,7 +17,7 @@ import requests
 from bs4 import BeautifulSoup
 from bs4.element import SoupStrainer
 
-from data_sqlalchemy import estonian_database
+from data_sqlalchemy import create_database
 from data_sqlalchemy.db_session import DbSession
 from data_sqlalchemy.verb_db import VerbDB
 from estonian_learner.verb import Conjugations
@@ -55,7 +55,7 @@ def main():
 
 
 def get_verbs_from_database() -> list:
-    estonian_database.create(db_file)
+    create_database.create(db_file)
 
     session = DbSession.factory()
     result = session.query(VerbDB).all()
@@ -65,7 +65,7 @@ def get_verbs_from_database() -> list:
 
 
 def get_verb_from_database(ma_infinitive: str):
-    estonian_database.create(db_file)
+    create_database.create(db_file)
 
     session = DbSession.factory()
     result = session.query(VerbDB).get({"ma_infinitive": ma_infinitive})
@@ -75,7 +75,7 @@ def get_verb_from_database(ma_infinitive: str):
 
 def add_to_database(my_verbs):
 
-    estonian_database.create(db_file)
+    create_database.create(db_file)
 
     session = DbSession.factory()
     for verb in my_verbs:
